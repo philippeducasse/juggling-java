@@ -18,14 +18,26 @@ public class Pattern {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pattern_id_sequence")
 
     private Long id;
+    private String patternCode;
     private String patternName;
+    private String patternDifficulty;
 
-    public Pattern(String patternName) {
+    public Pattern(String patternName, String patternCode, String patternDifficulty) {
         super();
         this.patternName = patternName;
+        this.patternCode = patternCode;
+        this.patternDifficulty = patternDifficulty;
     }
 
     public Pattern() {
+    }
+
+    public String getPatternCode() {
+        return patternCode;
+    }
+
+    public String getPatternDifficulty() {
+        return patternDifficulty;
     }
 
     public Long getId() {
@@ -38,6 +50,14 @@ public class Pattern {
 
     public void setPatternName(String patternName) {
         this.patternName = patternName;
+    }
+
+    public void setPatternDifficulty(String patternDifficulty) {
+        this.patternDifficulty = patternDifficulty;
+    }
+
+    public void setPatternCode(String patternCode) {
+        this.patternCode = patternCode;
     }
 
     @Override

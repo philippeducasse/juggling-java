@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,13 +53,17 @@ public class Main {
     }
 
     record NewPatternRequest(
-            String patternName) {
+            String patternName,
+            String patternCode,
+            String patternDifficulty) {
     }
 
     @PostMapping
     public void addPattern(@RequestBody NewPatternRequest request) {
         Pattern pattern = new Pattern();
         pattern.setPatternName(request.patternName());
+        pattern.setPatternCode(request.patternCode());
+        pattern.setPatternDifficulty(request.patternDifficulty());
         patternRepository.save(pattern);
     }
 
@@ -67,5 +72,12 @@ public class Main {
         patternRepository.deleteById(id);
     }
 
-    // add editPattern
+    @PutMapping("{patternId}")
+    public void updatePattern(@RequestBody @PathVariable("patternId") NewPatternRequest request) {
+        Pattern pattern = new Pattern();
+        pattern.setPatternName(request.patternName());
+        pattern.setPatternCode(request.patternCode());
+        pattern.setPatternDifficulty(request.patternDifficulty());
+        patternRepository.save(pattern);
+    }
 }
