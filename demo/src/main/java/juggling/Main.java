@@ -3,6 +3,7 @@ package juggling;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 // this marks the class as a web controller, and that all methods in the marked
 // class will return a JSON response.
 // needed to create REST endpoints
+// restcontrollers returns a domain object instead of a view
 @RestController
 @RequestMapping("api/v1/patterns")
 
@@ -47,6 +49,7 @@ public class Main {
     // these are other annotations which refer to springMVC. Used for writting
     // servlets
     // its an abbreviation of @requestMapping
+
     @GetMapping
     public List<Pattern> getPatterns() {
         return patternRepository.findAll();
@@ -68,16 +71,20 @@ public class Main {
     }
 
     @DeleteMapping("{patternId}")
-    public void deletePattern(@PathVariable("patternId") Integer id) {
+    public ResponseEntity<?> deletePattern(@PathVariable("patternId") Integer id) {
         patternRepository.deleteById(id);
+        return ResponseEntity.ok("Pattern successfully deleted");
+
     }
 
     @PutMapping("{patternId}")
-    public void updatePattern(@RequestBody @PathVariable("patternId") NewPatternRequest request) {
-        Pattern pattern = new Pattern();
+    public ResponseEntity<?> updatePattern(@PathVariable("patternId") Integer id,
+            @RequestBody NewPatternRequest request) {
+        Pattern pattern = patternRepository.findById(id).get();
         pattern.setPatternName(request.patternName());
         pattern.setPatternCode(request.patternCode());
         pattern.setPatternDifficulty(request.patternDifficulty());
         patternRepository.save(pattern);
+        return ResponseEntity.ok("Pattern successfully updated");
     }
 }
