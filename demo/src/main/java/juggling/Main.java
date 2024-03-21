@@ -3,6 +3,7 @@ package juggling;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,8 +52,14 @@ public class Main {
     // its an abbreviation of @requestMapping
 
     @GetMapping
-    public List<Pattern> getPatterns() {
-        return patternRepository.findAll();
+    public ResponseEntity<?> getPatterns() {
+        List<Pattern> patterns = patternRepository.findAll();
+        if (patterns.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No patterns found");
+        } else {
+            // Return the list of patterns with a 200 OK status if patterns are found
+            return ResponseEntity.ok(patterns);
+        }
     }
 
     record NewPatternRequest(
@@ -62,29 +69,47 @@ public class Main {
     }
 
     @PostMapping
-    public void addPattern(@RequestBody NewPatternRequest request) {
-        Pattern pattern = new Pattern();
-        pattern.setPatternName(request.patternName());
-        pattern.setPatternCode(request.patternCode());
-        pattern.setPatternDifficulty(request.patternDifficulty());
-        patternRepository.save(pattern);
+    public ResponseEntity<?> addPattern(@RequestBody NewPatternRequest request) {
+        try {
+
+            Pattern pattern = new Pattern();
+            pattern.setPatternName(request.patternName());
+            pattern.setPatternCode(request.patternCode());
+            pattern.setPatternDifficulty(request.patternDifficulty());
+            patternRepository.save(pattern);
+            return ResponseEntity.ok("Pattern successfully created");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating the pattern: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("{patternId}")
-    public ResponseEntity<?> deletePattern(@PathVariable("patternId") Integer id) {
-        patternRepository.deleteById(id);
-        return ResponseEntity.ok("Pattern successfully deleted");
 
+    public ResponseEntity<?> deletePattern(@PathVariable("patternId") Integer id) {
+        try {
+            patternRepository.deleteById(id);
+            return ResponseEntity.ok("Pattern successfully deleted");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating the pattern: " + e.getMessage());
+        }
     }
 
     @PutMapping("{patternId}")
     public ResponseEntity<?> updatePattern(@PathVariable("patternId") Integer id,
             @RequestBody NewPatternRequest request) {
-        Pattern pattern = patternRepository.findById(id).get();
-        pattern.setPatternName(request.patternName());
-        pattern.setPatternCode(request.patternCode());
-        pattern.setPatternDifficulty(request.patternDifficulty());
-        patternRepository.save(pattern);
-        return ResponseEntity.ok("Pattern successfully updated");
+        try {
+
+            Pattern pattern = patternRepository.findById(id).get();
+            pattern.setPatternName(request.patternName());
+            pattern.setPatternCode(request.patternCode());
+            pattern.setPatternDifficulty(request.patternDifficulty());
+            patternRepository.save(pattern);
+            return ResponseEntity.ok("Pattern successfully updated");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating the pattern: " + e.getMessage());
+        }
     }
 }
