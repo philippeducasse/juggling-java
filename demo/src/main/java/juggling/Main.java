@@ -1,6 +1,5 @@
 package juggling;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
@@ -12,8 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import juggling.models.Pattern;
+import juggling.models.User;
+import juggling.repositories.PatternRepository;
+import juggling.repositories.UserRepository;
 
 import java.util.List;
 
@@ -25,17 +27,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 // class will return a JSON response.
 // needed to create REST endpoints
 // restcontrollers returns a domain object instead of a view
-@RestController
-@RequestMapping("api/v1/patterns")
 
 public class Main {
 
+    // final means the vlaue cannot be changes (const)
     private final PatternRepository patternRepository;
+    private final UserRepository userRepository;
 
     // public is the modifier. It makes the class main available to any part of the
     // code
-    public Main(PatternRepository patternRepository) {
+    public Main(PatternRepository patternRepository, UserRepository userRepository) {
         this.patternRepository = patternRepository;
+        this.userRepository = userRepository;
     }
 
     // static means it is independent from the modifier "public"
@@ -66,6 +69,38 @@ public class Main {
             String patternName,
             String patternCode,
             String patternDifficulty) {
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getUsers() {
+        List<User> users = userRepository.findAll();
+        if (users.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No users found");
+        } else {
+            return ResponseEntity.ok(users);
+        }
+    }
+
+    record NewUserRequest(
+            String userName,
+            String password,
+            String email) {
+    }
+
+    @PostMapping
+    public ResponseEntity<?> addUser(@RequestBody NewUserRequest request) {
+        try {
+
+            User user = new User();
+            user.setUserName(request.userName());
+            user.setPassword(request.password());
+            user.setEmail(request.email());
+            userRepository.save(user);
+            return ResponseEntity.ok("user successfully created");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating the user: " + e.getMessage());
+        }
     }
 
     @PostMapping

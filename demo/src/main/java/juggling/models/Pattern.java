@@ -1,6 +1,5 @@
-package juggling;
+package juggling.models;
 
-import java.util.Objects;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,9 +11,7 @@ import jakarta.persistence.SequenceGenerator;
 public class Pattern {
 
     @Id
-    @SequenceGenerator(name = "pattern_id_sequence", sequenceName = "pattern_id_sequence", allocationSize = 1
-
-    )
+    @SequenceGenerator(name = "pattern_id_sequence", sequenceName = "pattern_id_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pattern_id_sequence")
 
     private Long id;
