@@ -1,5 +1,7 @@
 package juggling.dto;
 
-public class NewUserRequest {
-
+public record NewUserRequest(
+        String userName,
+        String password,
+        String email) {
 }
